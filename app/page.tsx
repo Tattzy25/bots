@@ -23,11 +23,7 @@ import {
   PromptInputButton,
   PromptInputHeader,
   type PromptInputMessage,
-  PromptInputSelect,
-  PromptInputSelectContent,
-  PromptInputSelectItem,
-  PromptInputSelectTrigger,
-  PromptInputSelectValue,
+
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputFooter,
@@ -38,7 +34,36 @@ import { useChat } from '@ai-sdk/react';
 import { CopyIcon, GlobeIcon, RefreshCcwIcon } from 'lucide-react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
-import { ThirdPanel } from '@/components/ui/third-panel';
+import { Button } from '@/components/ui/button';
+import { models } from '@/lib/models';
+import {
+  ModelSelector,
+  ModelSelectorContent,
+  ModelSelectorEmpty,
+  ModelSelectorGroup,
+  ModelSelectorInput,
+  ModelSelectorItem,
+  ModelSelectorList,
+  ModelSelectorLogo,
+  ModelSelectorLogoGroup,
+  ModelSelectorName,
+  ModelSelectorTrigger,
+} from '@/components/ai-elements/model-selector';
+import {
+  Artifact,
+  ArtifactHeader,
+  ArtifactTitle,
+  ArtifactActions,
+  ArtifactAction,
+  ArtifactContent,
+} from '@/components/ai-elements/artifact';
+import { CodeBlock, CodeBlockCopyButton } from '@/components/ai-elements/code-block';
+import {
+  WebPreview,
+  WebPreviewNavigation,
+  WebPreviewUrl,
+  WebPreviewBody,
+} from '@/components/ai-elements/web-preview';
 import { Separator } from '@/components/ui/separator';
 import {
   Breadcrumb,
@@ -66,20 +91,12 @@ import {
   ReasoningTrigger,
 } from '@/components/ai-elements/reasoning';
 import { Loader } from '@/components/ai-elements/loader';
-const models = [
-  {
-    name: 'GPT 4o',
-    value: 'openai/gpt-4o',
-  },
-  {
-    name: 'Deepseek R1',
-    value: 'deepseek/deepseek-r1',
-  },
-];
+
 const ChatBot = () => {
   const [input, setInput] = useState('');
   const [model, setModel] = useState<string>(models[0].value);
   const [webSearch, setWebSearch] = useState(false);
+  const [artifactView, setArtifactView] = useState<'preview' | 'code'>('preview');
   const { messages, sendMessage, status, regenerate } = useChat();
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text);
@@ -233,24 +250,33 @@ const ChatBot = () => {
                   <GlobeIcon size={16} aria-hidden="true" />
                   <span>Search</span>
                 </PromptInputButton>
-                <PromptInputSelect
-                  onValueChange={(value) => {
-                    setModel(value);
-                  }}
-                  value={model}
-                  aria-label="Select AI model"
-                >
-                  <PromptInputSelectTrigger aria-label="Current model selection">
-                    <PromptInputSelectValue />
-                  </PromptInputSelectTrigger>
-                  <PromptInputSelectContent>
-                    {models.map((model) => (
-                      <PromptInputSelectItem key={model.value} value={model.value}>
-                        {model.name}
-                      </PromptInputSelectItem>
-                    ))}
-                  </PromptInputSelectContent>
-                </PromptInputSelect>
+                <ModelSelector>
+                  <ModelSelectorTrigger asChild>
+                    <Button variant="outline" size="sm" className="justify-start">
+                      {models.find(m => m.value === model)?.name || 'Select Model'}
+                    </Button>
+                  </ModelSelectorTrigger>
+                  <ModelSelectorContent>
+                    <ModelSelectorInput placeholder="Search models..." />
+                    <ModelSelectorList>
+                      <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+                      {models.map((modelItem) => (
+                        <ModelSelectorItem
+                          key={modelItem.value}
+                          onSelect={() => setModel(modelItem.value)}
+                          className="flex items-center gap-2"
+                        >
+                          <ModelSelectorLogoGroup>
+                            {modelItem.providers.slice(0, 3).map((provider) => (
+                              <ModelSelectorLogo key={provider} provider={provider as "openai" | "anthropic" | "google" | "xai" | "mistral" | "deepseek" | "meta" | "vercel"} />
+                            ))}
+                          </ModelSelectorLogoGroup>
+                          <ModelSelectorName>{modelItem.name}</ModelSelectorName>
+                        </ModelSelectorItem>
+                      ))}
+                    </ModelSelectorList>
+                  </ModelSelectorContent>
+                </ModelSelector>
               </PromptInputTools>
             <PromptInputSubmit disabled={!input && !status} status={status} />
           </PromptInputFooter>
@@ -259,7 +285,47 @@ const ChatBot = () => {
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={50}>
-                  <ThirdPanel />
+                  <div className="h-full flex flex-col">
+                    <Artifact className="flex-1 m-4">
+                      <ArtifactHeader>
+                        <ArtifactTitle>Generated Webpage</ArtifactTitle>
+                        <ArtifactActions>
+                          <Button
+                            variant={artifactView === 'preview' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setArtifactView('preview')}
+                          >
+                            Preview
+                          </Button>
+                          <Button
+                            variant={artifactView === 'code' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setArtifactView('code')}
+                          >
+                            Code
+                          </Button>
+                          <ArtifactAction tooltip="Download HTML" icon={CopyIcon} />
+                        </ArtifactActions>
+                      </ArtifactHeader>
+                      <ArtifactContent className="h-full">
+                        {artifactView === 'preview' ? (
+                          <WebPreview className="h-full">
+                            <WebPreviewNavigation>
+                              <WebPreviewUrl />
+                            </WebPreviewNavigation>
+                            <WebPreviewBody className="flex-1" />
+                          </WebPreview>
+                        ) : (
+                          <CodeBlock
+                            code=""
+                            language="html"
+                          >
+                            <CodeBlockCopyButton />
+                          </CodeBlock>
+                        )}
+                      </ArtifactContent>
+                    </Artifact>
+                  </div>
                 </ResizablePanel>
               </ResizablePanelGroup>
             </SidebarInset>
