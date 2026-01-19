@@ -23,19 +23,25 @@ import {
   PromptInputButton,
   PromptInputHeader,
   type PromptInputMessage,
-  PromptInputSelect,
-  PromptInputSelectContent,
-  PromptInputSelectItem,
-  PromptInputSelectTrigger,
-  PromptInputSelectValue,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputFooter,
   PromptInputTools,
+  ModelSelector,
+  ModelSelectorTrigger,
+  ModelSelectorContent,
+  ModelSelectorInput,
+  ModelSelectorList,
+  ModelSelectorEmpty,
+  ModelSelectorGroup,
+  ModelSelectorItem,
+  ModelSelectorName,
 } from '../components/ai-elements/prompt-input';
+import { ModelSelectorDialog } from '../components/ai-elements/model-selector';
 import { Fragment, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { CopyIcon, GlobeIcon, RefreshCcwIcon } from 'lucide-react';
+import { Button } from '../components/ui/button';
 import {
   Tool,
   ToolContent,
@@ -45,14 +51,7 @@ import {
 } from '../components/ai-elements/tool';
 import { WeatherCard } from '../components/ai-elements/weather-card';
 import type { ToolUIPart } from 'ai';
-
-interface WeatherData {
-  location: string;
-  temperatureF: number;
-  condition: string;
-  humidityPercent: number;
-  windMph: number;
-}
+import { WeatherData } from '../lib/tools/weather-types';
 import {
   Source,
   Sources,
@@ -195,10 +194,9 @@ const ChatBot = () => {
                           <Tool key={`${message.id}-${i}`} defaultOpen={false}>
                             <ToolHeader type={toolPart.type} state={toolPart.state} />
                             <ToolContent>
-                              {toolPart.input && <ToolInput input={toolPart.input} />}
                               {(toolPart.output || toolPart.errorText) && (
                                 <ToolOutput
-                                  output={toolPart.output as React.ReactNode}
+                                  output={toolPart.output}
                                   errorText={toolPart.errorText}
                                 />
                               )}
@@ -242,23 +240,30 @@ const ChatBot = () => {
                 <GlobeIcon size={16} />
                 <span>Search</span>
               </PromptInputButton>
-              <PromptInputSelect
-                onValueChange={(value) => {
-                  setModel(value);
-                }}
-                value={model}
-              >
-                <PromptInputSelectTrigger>
-                  <PromptInputSelectValue />
-                </PromptInputSelectTrigger>
-                <PromptInputSelectContent>
-                  {models.map((model) => (
-                    <PromptInputSelectItem key={model.value} value={model.value}>
-                      {model.name}
-                    </PromptInputSelectItem>
-                  ))}
-                </PromptInputSelectContent>
-              </PromptInputSelect>
+              <ModelSelector>
+                <ModelSelectorTrigger asChild>
+                  <Button variant="ghost" className="justify-start">
+                    {models.find(m => m.value === model)?.name || 'Select Model'}
+                  </Button>
+                </ModelSelectorTrigger>
+                <ModelSelectorContent>
+                  <ModelSelectorInput placeholder="Search models..." />
+                  <ModelSelectorList>
+                    <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+                    <ModelSelectorGroup>
+                      {models.map((modelOption) => (
+                        <ModelSelectorItem
+                          key={modelOption.value}
+                          value={modelOption.value}
+                          onSelect={() => setModel(modelOption.value)}
+                        >
+                          <ModelSelectorName>{modelOption.name}</ModelSelectorName>
+                        </ModelSelectorItem>
+                      ))}
+                    </ModelSelectorGroup>
+                  </ModelSelectorList>
+                </ModelSelectorContent>
+              </ModelSelector>
             </PromptInputTools>
             <PromptInputSubmit disabled={!input && !status} status={status} />
           </PromptInputFooter>

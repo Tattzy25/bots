@@ -37,6 +37,21 @@ import {
 import { cn } from "@/lib/utils";
 import type { ChatStatus, FileUIPart } from "ai";
 import {
+  ModelSelector,
+  ModelSelectorTrigger,
+  ModelSelectorContent,
+  ModelSelectorInput,
+  ModelSelectorList,
+  ModelSelectorEmpty,
+  ModelSelectorGroup,
+  ModelSelectorItem,
+  ModelSelectorShortcut,
+  ModelSelectorSeparator,
+  ModelSelectorLogo,
+  ModelSelectorLogoGroup,
+  ModelSelectorName,
+} from "./model-selector";
+import {
   CornerDownLeftIcon,
   ImageIcon,
   Loader2Icon,
@@ -1411,3 +1426,24 @@ export const PromptInputCommandSeparator = ({
 }: PromptInputCommandSeparatorProps) => (
   <CommandSeparator className={cn(className)} {...props} />
 );
+
+// ============================================================================
+// Model Selector Exports (imported from model-selector.tsx)
+// ============================================================================
+
+export {
+  ModelSelector,
+  ModelSelectorDialog,
+  ModelSelectorTrigger,
+  ModelSelectorContent,
+  ModelSelectorInput,
+  ModelSelectorList,
+  ModelSelectorEmpty,
+  ModelSelectorGroup,
+  ModelSelectorItem,
+  ModelSelectorShortcut,
+  ModelSelectorSeparator,
+  ModelSelectorLogo,
+  ModelSelectorLogoGroup,
+  ModelSelectorName,
+} from "./model-selector";
