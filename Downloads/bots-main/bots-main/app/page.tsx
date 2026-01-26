@@ -206,7 +206,6 @@ const ChatBot = () => {
       return;
     }
 
-    // Log message send event
     Logger.info('Message sent', {
       hasText,
       textLength: message.text?.length || 0,

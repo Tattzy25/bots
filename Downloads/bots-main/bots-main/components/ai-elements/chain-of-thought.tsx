@@ -7,7 +7,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
 import {
   BrainIcon,
   ChevronDownIcon,
@@ -16,6 +15,9 @@ import {
 } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { createContext, memo, useContext, useMemo } from "react";
+
+const cn = (...args: Array<string | false | null | undefined>) =>
+  args.filter(Boolean).join(" ");
 
 interface ChainOfThoughtContextValue {
   isOpen: boolean;
@@ -64,10 +66,7 @@ export const ChainOfThought = memo(
 
     return (
       <ChainOfThoughtContext.Provider value={chainOfThoughtContext}>
-        <div
-          className={cn("not-prose max-w-prose space-y-4", className)}
-          {...props}
-        >
+        <div className={cn(className)} data-role="chain-of-thought" {...props}>
           {children}
         </div>
       </ChainOfThoughtContext.Provider>
@@ -86,22 +85,17 @@ export const ChainOfThoughtHeader = memo(
     return (
       <Collapsible onOpenChange={setIsOpen} open={isOpen}>
         <CollapsibleTrigger
-          className={cn(
-            "flex w-full items-center gap-2 text-muted-foreground text-sm transition-colors hover:text-foreground",
-            className
-          )}
+          className={cn(className)}
+          data-role="chain-of-thought-header"
           {...props}
         >
-          <BrainIcon className="size-4" />
-          <span className="flex-1 text-left">
-            {children ?? "Chain of Thought"}
+          <span aria-hidden>
+            <BrainIcon />
           </span>
-          <ChevronDownIcon
-            className={cn(
-              "size-4 transition-transform",
-              isOpen ? "rotate-180" : "rotate-0"
-            )}
-          />
+          <span>{children ?? "Chain of Thought"}</span>
+          <span aria-hidden>
+            <ChevronDownIcon data-open={isOpen ? "true" : "false"} />
+          </span>
         </CollapsibleTrigger>
       </Collapsible>
     );
@@ -125,31 +119,20 @@ export const ChainOfThoughtStep = memo(
     children,
     ...props
   }: ChainOfThoughtStepProps) => {
-    const statusStyles = {
-      complete: "text-muted-foreground",
-      active: "text-foreground",
-      pending: "text-muted-foreground/50",
-    };
-
     return (
       <div
-        className={cn(
-          "flex gap-2 text-sm",
-          statusStyles[status],
-          "fade-in-0 slide-in-from-top-2 animate-in",
-          className
-        )}
+        className={cn(className)}
+        data-role="chain-of-thought-step"
+        data-status={status}
         {...props}
       >
-        <div className="relative mt-0.5">
-          <Icon className="size-4" />
-          <div className="absolute top-7 bottom-0 left-1/2 -mx-px w-px bg-border" />
+        <div data-role="step-icon">
+          <Icon />
+          <div data-role="step-line" />
         </div>
-        <div className="flex-1 space-y-2 overflow-hidden">
-          <div>{label}</div>
-          {description && (
-            <div className="text-muted-foreground text-xs">{description}</div>
-          )}
+        <div data-role="step-body">
+          <div data-role="step-label">{label}</div>
+          {description && <div data-role="step-description">{description}</div>}
           {children}
         </div>
       </div>
@@ -161,10 +144,7 @@ export type ChainOfThoughtSearchResultsProps = ComponentProps<"div">;
 
 export const ChainOfThoughtSearchResults = memo(
   ({ className, ...props }: ChainOfThoughtSearchResultsProps) => (
-    <div
-      className={cn("flex flex-wrap items-center gap-2", className)}
-      {...props}
-    />
+    <div className={cn(className)} data-role="chain-of-thought-results" {...props} />
   )
 );
 
@@ -172,11 +152,7 @@ export type ChainOfThoughtSearchResultProps = ComponentProps<typeof Badge>;
 
 export const ChainOfThoughtSearchResult = memo(
   ({ className, children, ...props }: ChainOfThoughtSearchResultProps) => (
-    <Badge
-      className={cn("gap-1 px-2 py-0.5 font-normal text-xs", className)}
-      variant="secondary"
-      {...props}
-    >
+    <Badge className={cn(className)} variant="secondary" {...props} data-role="chain-of-thought-result">
       {children}
     </Badge>
   )
@@ -193,11 +169,8 @@ export const ChainOfThoughtContent = memo(
     return (
       <Collapsible open={isOpen}>
         <CollapsibleContent
-          className={cn(
-            "mt-2 space-y-3",
-            "data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 text-popover-foreground outline-none data-[state=closed]:animate-out data-[state=open]:animate-in",
-            className
-          )}
+          className={cn(className)}
+          data-role="chain-of-thought-content"
           {...props}
         >
           {children}
@@ -213,11 +186,9 @@ export type ChainOfThoughtImageProps = ComponentProps<"div"> & {
 
 export const ChainOfThoughtImage = memo(
   ({ className, children, caption, ...props }: ChainOfThoughtImageProps) => (
-    <div className={cn("mt-2 space-y-2", className)} {...props}>
-      <div className="relative flex max-h-[22rem] items-center justify-center overflow-hidden rounded-lg bg-muted p-3">
-        {children}
-      </div>
-      {caption && <p className="text-muted-foreground text-xs">{caption}</p>}
+    <div className={cn(className)} data-role="chain-of-thought-image" {...props}>
+      <div data-role="image-wrapper">{children}</div>
+      {caption && <p data-role="image-caption">{caption}</p>}
     </div>
   )
 );

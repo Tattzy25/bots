@@ -7,11 +7,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+// HoverCard removed — use simple fallbacks
 import { cn } from "@/lib/utils";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import {
@@ -47,10 +43,10 @@ export const InlineCitationText = ({
   />
 );
 
-export type InlineCitationCardProps = ComponentProps<typeof HoverCard>;
+export type InlineCitationCardProps = ComponentProps<'div'>;
 
 export const InlineCitationCard = (props: InlineCitationCardProps) => (
-  <HoverCard closeDelay={0} openDelay={0} {...props} />
+  <div {...(props as ComponentProps<'div'>)} />
 );
 
 export type InlineCitationCardTriggerProps = ComponentProps<typeof Badge> & {
@@ -62,31 +58,22 @@ export const InlineCitationCardTrigger = ({
   className,
   ...props
 }: InlineCitationCardTriggerProps) => (
-  <HoverCardTrigger asChild>
-    <Badge
-      className={cn("ml-1 rounded-full", className)}
-      variant="secondary"
-      {...props}
-    >
-      {sources[0] ? (
-        <>
-          {new URL(sources[0]).hostname}{" "}
-          {sources.length > 1 && `+${sources.length - 1}`}
-        </>
-      ) : (
-        "unknown"
-      )}
-    </Badge>
-  </HoverCardTrigger>
+  <Badge className={cn("ml-1 rounded-full", className)} variant="secondary" {...props}>
+    {sources[0] ? (
+      <>
+        {new URL(sources[0]).hostname} {" "}
+        {sources.length > 1 && `+${sources.length - 1}`}
+      </>
+    ) : (
+      "unknown"
+    )}
+  </Badge>
 );
 
 export type InlineCitationCardBodyProps = ComponentProps<"div">;
 
-export const InlineCitationCardBody = ({
-  className,
-  ...props
-}: InlineCitationCardBodyProps) => (
-  <HoverCardContent className={cn("relative w-80 p-0", className)} {...props} />
+export const InlineCitationCardBody = ({ className, ...props }: InlineCitationCardBodyProps) => (
+  <div className={cn("relative w-80 p-0", className)} {...props} />
 );
 
 const CarouselApiContext = createContext<CarouselApi | undefined>(undefined);

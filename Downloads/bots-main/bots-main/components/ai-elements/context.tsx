@@ -1,11 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+// HoverCard removed — use simple fallbacks
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { LanguageModelUsage } from "ai";
@@ -39,13 +35,14 @@ const useContextValue = () => {
   return context;
 };
 
-export type ContextProps = ComponentProps<typeof HoverCard> & ContextSchema;
+export type ContextProps = ComponentProps<'div'> & ContextSchema;
 
 export const Context = ({
   usedTokens,
   maxTokens,
   usage,
   modelId,
+  children,
   ...props
 }: ContextProps) => (
   <ContextContext.Provider
@@ -56,7 +53,7 @@ export const Context = ({
       modelId,
     }}
   >
-    <HoverCard closeDelay={0} openDelay={0} {...props} />
+    <div {...(props as ComponentProps<'div'>)}>{children}</div>
   </ContextContext.Provider>
 );
 
@@ -111,30 +108,20 @@ export const ContextTrigger = ({ children, ...props }: ContextTriggerProps) => {
     maximumFractionDigits: 1,
   }).format(usedPercent);
 
+  if (children) return <>{children}</>;
+
   return (
-    <HoverCardTrigger asChild>
-      {children ?? (
-        <Button type="button" variant="ghost" {...props}>
-          <span className="font-medium text-muted-foreground">
-            {renderedPercent}
-          </span>
-          <ContextIcon />
-        </Button>
-      )}
-    </HoverCardTrigger>
+    <Button type="button" variant="ghost" {...props}>
+      <span className="font-medium text-muted-foreground">{renderedPercent}</span>
+      <ContextIcon />
+    </Button>
   );
 };
 
-export type ContextContentProps = ComponentProps<typeof HoverCardContent>;
+export type ContextContentProps = ComponentProps<'div'>;
 
-export const ContextContent = ({
-  className,
-  ...props
-}: ContextContentProps) => (
-  <HoverCardContent
-    className={cn("min-w-60 divide-y overflow-hidden p-0", className)}
-    {...props}
-  />
+export const ContextContent = ({ className, ...props }: ContextContentProps) => (
+  <div className={cn("min-w-60 divide-y overflow-hidden p-0", className)} {...props} />
 );
 
 export type ContextContentHeaderProps = ComponentProps<"div">;

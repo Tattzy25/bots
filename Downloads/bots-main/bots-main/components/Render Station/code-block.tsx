@@ -30,13 +30,9 @@ import {
 	type ThemedToken,
 } from "shiki";
 
-// Shiki uses bitflags for font styles: 1=italic, 2=bold, 4=underline
-// biome-ignore lint/suspicious/noBitwiseOperators: shiki bitflag check
 const isItalic = (fontStyle: number | undefined) => fontStyle && fontStyle & 1;
-// biome-ignore lint/suspicious/noBitwiseOperators: shiki bitflag check
 const isBold = (fontStyle: number | undefined) => fontStyle && fontStyle & 2;
 const isUnderline = (fontStyle: number | undefined) =>
-	// biome-ignore lint/suspicious/noBitwiseOperators: shiki bitflag check
 	fontStyle && fontStyle & 4;
 
 // Transform tokens to include pre-computed keys to avoid noArrayIndexKey lint
